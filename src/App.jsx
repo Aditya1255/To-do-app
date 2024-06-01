@@ -1,36 +1,52 @@
+import React, { useState, useCallback, useEffect } from "react";
 import Search from "./component/search";
 import File from "./component/file";
-import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
-  //state to handle todo array
   let [arr, setArr] = useState([]);
   let [edit, setEdit] = useState(false);
   const [editData, setEditData] = useState({ index: -1, value: null });
 
-  //function which helps to pass props from children to parent (search to app)
+  useEffect(() => {
+    console.log("App component rendered");
+  }, [arr]);
+
   let handleArr = (data) => {
     setArr([...arr, data]);
   };
 
-  //getting value from child element, deleting that value from array and updating array
-  let manageDelete = (value) => {
-    let filterArr = arr.filter((item) => item != value);
-    setArr([...filterArr]);
-  };
-  let manageEdit = (index, value) => {
-    setEditData({ index: index, value: value });
-  };
-  let passEdit = (value) => {
-    console.log("YE VALUE HAI", value);
-    setEdit(value);
-  };
+  const manageDelete = useCallback(
+    (value) => {
+      console.log("manageDelete called with value:", value);
+      let filterArr = arr.filter((item) => item !== value);
+      setArr(filterArr); // No need to spread the array again
+      toast.warning("Todo Deleted Successfully");
+    },
+    [arr]
+  );
 
-  let handleUpdate = (index, value) => {
-    console.log("ye wala", index, value);
-    arr.splice(index, 1, value);
-    setArr([...arr]);
-    setEditData({ index: -1, value: null });
-  };
+  const manageEdit = useCallback((index, value) => {
+    console.log("manageEdit called with index and value:", index, value);
+    setEditData({ index, value });
+  }, []);
+
+  const passEdit = useCallback((value) => {
+    console.log("passEdit called with value:", value);
+    setEdit(value);
+  }, []);
+
+  const handleUpdate = useCallback(
+    (index, value) => {
+      console.log("handleUpdate called with index and value:", index, value);
+      const newArr = [...arr];
+      newArr.splice(index, 1, value);
+      setArr(newArr);
+      setEditData({ index: -1, value: null });
+    },
+    [arr]
+  );
 
   return (
     <div className="container">
@@ -46,6 +62,7 @@ function App() {
         manageEdit={manageEdit}
         editData={editData}
       />
+      <ToastContainer />
     </div>
   );
 }
